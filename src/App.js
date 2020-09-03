@@ -1,26 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component}from 'react';
+import CardList from './cardlist';
+import {connect} from 'react-redux';
+import {members} from './members';
+import SearchBox from './searchbox';
+import Scroll from './Scroll';
+import ErrorBoundry from './ErrorBoundry';
+ import {setSearchField} from './Actions';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// defining state parameters
+ const mapStateToProps = (state) =>{
+  return{
+    searchField: state.searchField
+  }
+ }
+ const mapDispatchToProps =(dispatch) =>{
+  return {
+    onSearchChange: (event)=> dispatch(setSearchField(event.target.value))
+     }
+ }
+
+class App extends Component {
+  constructor(){
+    // in order to be able to use this as a keyword, you have to first invoke super
+     super()
+     this.state  = {
+           members: members
+           
+        }
+    }
+  
+     
+  render(){
+    // this filters the elements displayed according to the input in the searchbox
+    const {members} = this.state;
+    const {searchField, onSearchChange}= this.props;
+    const filteredMembers = members.filter(members =>{
+          return members.name.toLowerCase().includes(searchField.toLowerCase());
+       })
+    return (
+      // this is the code for each card displayed
+      <div className = 'tc'>
+         <h1>Members</h1>
+         <SearchBox searchChange= {onSearchChange} />
+         <Scroll>
+           <ErrorBoundry>
+            <CardList  members={filteredMembers}/>
+            </ErrorBoundry>
+          </Scroll>
+       </div>
+      );
 }
-
-export default App;
+  }
+ 
+export default connect(mapStateToProps, mapDispatchToProps)(App);
